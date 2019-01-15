@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +38,7 @@ public class Supporters {
             this.modDir.mkdirs();
         }
 
-        this.knownSupporters = new HashMap<>();
+        this.knownSupporters = new ConcurrentHashMap<>();
         this.lookupManager = new ProfileManager(new File(this.modDir, "supporters-cache.json"));
         this.config = new Configs(new File(this.modDir, "supporters.cfg"));
         this.loadSupporters(false);
@@ -60,6 +61,8 @@ public class Supporters {
         // Start a new thread to update player info.
         new Thread( () -> {
 
+            final long startTime = System.currentTimeMillis();
+            
             // Loaded data into the cache file.
             this.lookupManager.load(refresh);
 
@@ -79,7 +82,7 @@ public class Supporters {
             // Save the data to a file.
             this.lookupManager.save();
             
-            LOG.info("Successfully loaded {} supporters.", knownSupporters.size());
+            LOG.info("Successfully loaded {} supporters. Took {}ms on a separate thread.", knownSupporters.size(), System.currentTimeMillis() - startTime);
         }).start();
     }
 }
