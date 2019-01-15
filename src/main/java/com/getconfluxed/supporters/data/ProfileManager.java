@@ -1,4 +1,4 @@
-package com.getconfluxed.zensupporters.data;
+package com.getconfluxed.supporters.data;
 
 import java.io.File;
 import java.io.FileReader;
@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.getconfluxed.zensupporters.ZenSupporters;
+import com.getconfluxed.supporters.ZenSupporters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.GameProfile;

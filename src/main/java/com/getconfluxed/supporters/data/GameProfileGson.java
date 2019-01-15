@@ -1,4 +1,4 @@
-package com.getconfluxed.zensupporters.data;
+package com.getconfluxed.supporters.data;
 
 import java.util.UUID;
 

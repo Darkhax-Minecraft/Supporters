@@ -1,6 +1,6 @@
-package com.getconfluxed.zensupporters.crt;
+package com.getconfluxed.supporters.crt;
 
-import com.getconfluxed.zensupporters.ZenSupporters;
+import com.getconfluxed.supporters.ZenSupporters;
 
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.minecraft.CraftTweakerMC;

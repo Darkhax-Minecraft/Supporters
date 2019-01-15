@@ -1,4 +1,4 @@
-package com.getconfluxed.zensupporters;
+package com.getconfluxed.supporters;
 
 import java.io.File;
 import java.io.IOException;

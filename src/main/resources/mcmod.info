@@ -1,0 +1,14 @@
+[
+  {
+    "modid": "supporters",
+    "name": "Supporters",
+    "description": "Allows modpacks to define supporter information.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "TODO",
+    "updateUrl": "",
+    "authorList": [
+      "Darkhax"
+    ]
+  }
+]
