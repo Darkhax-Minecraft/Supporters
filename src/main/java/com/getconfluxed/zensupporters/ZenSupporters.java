@@ -1,20 +1,16 @@
 package com.getconfluxed.zensupporters;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.getconfluxed.zensupporters.data.ProfileManager;
-import com.google.common.base.Charsets;
+import com.mojang.authlib.GameProfile;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -24,44 +20,63 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class ZenSupporters {
 
     public static final Logger LOG = LogManager.getLogger("ZenSupporters");
-    
-    private final ProfileManager lookupManager = new ProfileManager(new File("zencache.json"));
-    private final Map<String, Supporter> map = new ConcurrentHashMap<>();
+
+    private final int CORE_COUNT = getCoreCount();
+    private ProfileManager lookupManager;
+    private Configs config;
 
     @EventHandler
     public void onPreInit (FMLPreInitializationEvent event) {
 
-        this.loadSupporters();
+        this.lookupManager = new ProfileManager(new File("zencache.json"));
+        this.config = new Configs(event.getSuggestedConfigurationFile());
+        this.loadSupporters(false);
+        LOG.info("Detected {} cores. Allocating that many threads to the thread pool.", this.CORE_COUNT);
     }
 
     /**
      * Triggers a reload of all the supporter data. This will spin off multiple threads, so
      * calls to this command should be used sparingly.
      */
-    public void loadSupporters () {
+    public void loadSupporters (boolean refresh) {
 
-        // TODO Change the amount of threads
-        final ExecutorService executor = Executors.newFixedThreadPool(16);
+        new Thread( () -> {
+
+            this.lookupManager.load(refresh);
+            // Create a thread pool with the number of cores.
+            final ExecutorService executor = Executors.newFixedThreadPool(this.CORE_COUNT);
+
+            for (final UUID hardcodedId : this.config.supporterUUIDs) {
+
+                executor.submit( () -> {
+
+                    final GameProfile profile = this.lookupManager.getProfileByUUID(hardcodedId);
+                });
+            }
+
+            executor.shutdown();
+
+            try {
+                executor.awaitTermination(10, TimeUnit.SECONDS);
+            }
+            catch (final InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            this.lookupManager.save();
+        }).start();
+    }
+
+    private static int getCoreCount () {
 
         try {
 
-            final long currentTime = new Date().getTime();
-
-            // TODO add more sources for supporters
-            // TODO add support for UUIDs instead of just usernames
-            for (final String line : FileUtils.readLines(new File("config/entry.txt"), Charsets.UTF_8)) {
-
-                executor.submit( () -> this.map.put(line, new Supporter(this.lookupManager.getProfileByUsername(line.toLowerCase(Locale.ROOT), currentTime))));
-            }
+            return Runtime.getRuntime().availableProcessors();
         }
 
-        catch (final IOException e) {
+        catch (final Exception e) {
 
-            LOG.catching(e);
+            return 4;
         }
-
-        executor.shutdown();
-        this.lookupManager.save();
-
     }
 }
