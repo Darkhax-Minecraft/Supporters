@@ -78,6 +78,8 @@ public class Supporters {
 
             // Save the data to a file.
             this.lookupManager.save();
+            
+            LOG.info("Successfully loaded {} supporters.", knownSupporters.size());
         }).start();
     }
 }
