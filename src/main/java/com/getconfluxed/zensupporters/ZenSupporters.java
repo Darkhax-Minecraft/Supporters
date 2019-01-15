@@ -1,6 +1,8 @@
 package com.getconfluxed.zensupporters;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +16,7 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = "zensupporters", name = "ZenSupporters", version = "@VERSION@", dependencies = "required-after:crafttweaker", certificateFingerprint = "@FINGERPRINT@")
@@ -21,17 +24,27 @@ public class ZenSupporters {
 
     public static final Logger LOG = LogManager.getLogger("ZenSupporters");
 
+    @Instance("zensupporters")
+    public static ZenSupporters instance;
+
     private final int CORE_COUNT = getCoreCount();
     private ProfileManager lookupManager;
     private Configs config;
+    private Map<UUID, GameProfile> knownSupporters;
 
     @EventHandler
     public void onPreInit (FMLPreInitializationEvent event) {
 
+        this.knownSupporters = new HashMap<>();
         this.lookupManager = new ProfileManager(new File("zencache.json"));
         this.config = new Configs(event.getSuggestedConfigurationFile());
         this.loadSupporters(false);
         LOG.info("Detected {} cores. Allocating that many threads to the thread pool.", this.CORE_COUNT);
+    }
+
+    public boolean isSupporter (UUID id) {
+
+        return this.knownSupporters.containsKey(id);
     }
 
     /**
@@ -39,6 +52,8 @@ public class ZenSupporters {
      * calls to this command should be used sparingly.
      */
     public void loadSupporters (boolean refresh) {
+
+        this.knownSupporters.clear();
 
         new Thread( () -> {
 
@@ -51,6 +66,11 @@ public class ZenSupporters {
                 executor.submit( () -> {
 
                     final GameProfile profile = this.lookupManager.getProfileByUUID(hardcodedId);
+
+                    if (!profile.isComplete()) {
+
+                        this.knownSupporters.put(profile.getId(), profile);
+                    }
                 });
             }
 
@@ -60,8 +80,6 @@ public class ZenSupporters {
                 executor.awaitTermination(10, TimeUnit.SECONDS);
             }
             catch (final InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
             this.lookupManager.save();
         }).start();
