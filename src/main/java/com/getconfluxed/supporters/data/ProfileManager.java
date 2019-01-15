@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.getconfluxed.supporters.ZenSupporters;
+import com.getconfluxed.supporters.Supporters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.GameProfile;
@@ -77,14 +77,14 @@ public class ProfileManager {
 
                 if (this.usercacheFile.createNewFile()) {
 
-                    ZenSupporters.LOG.info("Successfully created cache file at {}.", this.usercacheFile.getAbsolutePath());
+                    Supporters.LOG.info("Successfully created cache file at {}.", this.usercacheFile.getAbsolutePath());
                 }
             }
 
             catch (final IOException e) {
 
-                ZenSupporters.LOG.error("Failed to create cache file. {}", this.usercacheFile.getAbsolutePath());
-                ZenSupporters.LOG.catching(e);
+                Supporters.LOG.error("Failed to create cache file. {}", this.usercacheFile.getAbsolutePath());
+                Supporters.LOG.catching(e);
             }
         }
     }
@@ -150,7 +150,7 @@ public class ProfileManager {
 
         catch (final IOException e) {
 
-            ZenSupporters.LOG.catching(e);
+            Supporters.LOG.catching(e);
         }
     }
 
@@ -170,7 +170,7 @@ public class ProfileManager {
 
         catch (final IOException e) {
 
-            ZenSupporters.LOG.catching(e);
+            Supporters.LOG.catching(e);
         }
     }
 

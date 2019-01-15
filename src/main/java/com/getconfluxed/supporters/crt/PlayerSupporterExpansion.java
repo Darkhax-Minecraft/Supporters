@@ -1,6 +1,6 @@
 package com.getconfluxed.supporters.crt;
 
-import com.getconfluxed.supporters.ZenSupporters;
+import com.getconfluxed.supporters.Supporters;
 
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.minecraft.CraftTweakerMC;
@@ -27,6 +27,6 @@ public class PlayerSupporterExpansion {
     public static boolean isKnownSupporter (IPlayer player) {
 
         final EntityPlayer actualPlayer = CraftTweakerMC.getPlayer(player);
-        return actualPlayer != null && ZenSupporters.instance.isSupporter(actualPlayer.getUniqueID());
+        return actualPlayer != null && Supporters.instance.isSupporter(actualPlayer.getUniqueID());
     }
 }

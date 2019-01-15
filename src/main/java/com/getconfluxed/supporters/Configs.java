@@ -81,7 +81,7 @@ public class Configs {
 
             catch (final IOException e) {
 
-                ZenSupporters.LOG.error("Unable to read player data from {}.", url);
+                Supporters.LOG.error("Unable to read player data from {}.", url);
             }
         }
 

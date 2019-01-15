@@ -4,9 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,15 +17,14 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = "supporters", name = "Supporters", version = "@VERSION@", dependencies = "", certificateFingerprint = "@FINGERPRINT@")
-public class ZenSupporters {
+public class Supporters {
 
     public static final Logger LOG = LogManager.getLogger("Supporters");
-    
-    @Instance("supporters")
-    public static ZenSupporters instance;
 
-    private final int CORE_COUNT = getCoreCount();
-    private final File DIR = new File("config/supporters");
+    @Instance("supporters")
+    public static Supporters instance;
+
+    private final File modDir = new File("config/supporters");
     private ProfileManager lookupManager;
     private Configs config;
     private Map<UUID, GameProfile> knownSupporters;
@@ -36,16 +32,15 @@ public class ZenSupporters {
     @EventHandler
     public void onPreInit (FMLPreInitializationEvent event) {
 
-        if (!DIR.exists()) {
-            
-            DIR.mkdirs();
+        if (!this.modDir.exists()) {
+
+            this.modDir.mkdirs();
         }
-        
+
         this.knownSupporters = new HashMap<>();
-        this.lookupManager = new ProfileManager(new File(DIR, "supporters-cache.json"));
-        this.config = new Configs(new File(DIR, "supporters.cfg"));
+        this.lookupManager = new ProfileManager(new File(this.modDir, "supporters-cache.json"));
+        this.config = new Configs(new File(this.modDir, "supporters.cfg"));
         this.loadSupporters(false);
-        LOG.info("Detected {} cores. Allocating that many threads to the thread pool.", this.CORE_COUNT);
     }
 
     public boolean isSupporter (UUID id) {
@@ -59,48 +54,30 @@ public class ZenSupporters {
      */
     public void loadSupporters (boolean refresh) {
 
+        // Clear the list of known supporters.
         this.knownSupporters.clear();
 
+        // Start a new thread to update player info.
         new Thread( () -> {
 
+            // Loaded data into the cache file.
             this.lookupManager.load(refresh);
-            // Create a thread pool with the number of cores.
-            final ExecutorService executor = Executors.newFixedThreadPool(this.CORE_COUNT);
 
-            for (final UUID hardcodedId : this.config.supporterUUIDs) {
+            // Iterate all the data from the config, and load it into the cache.
+            for (final UUID configSpecifiedId : this.config.supporterUUIDs) {
 
-                executor.submit( () -> {
+                // Retrieve the profile.
+                final GameProfile profile = this.lookupManager.getProfileByUUID(configSpecifiedId);
 
-                    final GameProfile profile = this.lookupManager.getProfileByUUID(hardcodedId);
+                // If the profile has a uuid and a name, load it into the map.
+                if (profile.isComplete()) {
 
-                    if (!profile.isComplete()) {
-
-                        this.knownSupporters.put(profile.getId(), profile);
-                    }
-                });
+                    this.knownSupporters.put(profile.getId(), profile);
+                }
             }
 
-            executor.shutdown();
-
-            try {
-                executor.awaitTermination(10, TimeUnit.SECONDS);
-            }
-            catch (final InterruptedException e) {
-            }
+            // Save the data to a file.
             this.lookupManager.save();
         }).start();
-    }
-
-    private static int getCoreCount () {
-
-        try {
-
-            return Runtime.getRuntime().availableProcessors();
-        }
-
-        catch (final Exception e) {
-
-            return 4;
-        }
     }
 }
