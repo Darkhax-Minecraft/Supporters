@@ -12,31 +12,31 @@ import com.mojang.authlib.properties.Property;
  * and additional properties that are not traditionally cached.
  */
 public class GameProfileGson {
-    
+
     @Expose
     private final String name;
-    
+
     @Expose
     private final UUID id;
-    
+
     @Expose
     private String textureData;
-    
+
     public GameProfileGson (GameProfile profile) {
-        
+
         this.name = profile.getName();
         this.id = profile.getId();
-        
+
         final Property property = (Property) Iterables.getFirst(profile.getProperties().get("textures"), (Object) null);
-        
+
         if (property != null) {
-            
+
             this.textureData = property.getValue();
         }
     }
-    
+
     public GameProfile constructProfile () {
-        
+
         final GameProfile profile = new GameProfile(this.id, this.name);
         profile.getProperties().put("textures", new Property(this.textureData, "texutres"));
         return profile;

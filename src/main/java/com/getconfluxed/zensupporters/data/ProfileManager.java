@@ -24,36 +24,36 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
  * cache is really clunky and doesn't work well in a threaded context.
  */
 public class ProfileManager {
-    
+
     /**
      * A client for the Minecraft session service.
      */
     private final MinecraftSessionService sessionService;
-    
+
     /**
      * An instance of gson, to handle cache file serialization.
      */
     private final Gson gson;
-    
+
     /**
      * The handle for the cache file.
      */
     private final File usercacheFile;
-    
+
     /**
      * A map of all the loaded profiles. The map is accessed by UUID.
      */
     private final Map<UUID, GameProfile> uuidCache = new ConcurrentHashMap<>();
-    
+
     public ProfileManager (File usercacheFileIn) {
-        
+
         // Generate a new auth client
         final YggdrasilAuthenticationService auth = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
         this.sessionService = auth.createMinecraftSessionService();
         this.usercacheFile = usercacheFileIn;
         this.gson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
     }
-    
+
     /**
      * Gets a profile by it's UUID. If no profile is found, it will be looked up and cached
      * using {@link #retrieveProfile(UUID)}.
@@ -62,33 +62,33 @@ public class ProfileManager {
      * @return The profile that was found.
      */
     public GameProfile getProfileByUUID (UUID id) {
-        
+
         return this.uuidCache.containsKey(id) ? this.uuidCache.get(id) : this.retrieveProfile(id);
     }
-    
+
     /**
      * Creates the cache file if it doesn't already exist.
      */
     private void createCacheFile () {
-        
+
         if (!this.usercacheFile.exists()) {
-            
+
             try {
-                
+
                 if (this.usercacheFile.createNewFile()) {
-                    
+
                     ZenSupporters.LOG.info("Successfully created cache file at {}.", this.usercacheFile.getAbsolutePath());
                 }
             }
-            
+
             catch (final IOException e) {
-                
+
                 ZenSupporters.LOG.error("Failed to create cache file. {}", this.usercacheFile.getAbsolutePath());
                 ZenSupporters.LOG.catching(e);
             }
         }
     }
-    
+
     /**
      * Requests profile info from Mojang's servers. This will also cache it to
      * {@link #uuidCache} to make subsequent lookups faster.
@@ -97,12 +97,12 @@ public class ProfileManager {
      * @return The profile that was received.
      */
     private GameProfile retrieveProfile (UUID uuid) {
-        
+
         final GameProfile profile = this.sessionService.fillProfileProperties(new GameProfile(uuid, null), false);
         this.uuidCache.put(uuid, profile);
         return profile;
     }
-    
+
     /**
      * Loads cache data from the cache file. This cache is used to improve the speed of future
      * lookups.
@@ -111,69 +111,69 @@ public class ProfileManager {
      *        Mojang's servers or not.
      */
     public void load (boolean refresh) {
-        
+
         // Clear existing caches
         this.uuidCache.clear();
-        
+
         // Create the cache file if it did not exist.
         this.createCacheFile();
-        
+
         // Attempt to read the file.
         try (FileReader reader = new FileReader(this.usercacheFile)) {
-            
+
             // Deserialize the json to an array of profiles.
             final GameProfileGson[] profiles = this.gson.fromJson(reader, GameProfileGson[].class);
-            
+
             if (profiles != null) {
-                
+
                 // If refresh is true, profiles are looked up again.
                 if (refresh) {
-                    
+
                     for (final GameProfileGson profile : profiles) {
-                        
+
                         final GameProfile compiledProfile = profile.constructProfile();
                         this.retrieveProfile(compiledProfile.getId());
                     }
                 }
-                
+
                 // Otherwise load from file and assume it's true.
                 else {
-                    
+
                     for (final GameProfileGson profile : profiles) {
-                        
+
                         final GameProfile compiledProfile = profile.constructProfile();
                         this.uuidCache.put(compiledProfile.getId(), compiledProfile);
                     }
                 }
             }
         }
-        
+
         catch (final IOException e) {
-            
+
             ZenSupporters.LOG.catching(e);
         }
     }
-    
+
     /**
      * Attempt to save the cache to a file.
      */
     public void save () {
-        
+
         // Try to open a file writer to the cache file.
         try (FileWriter writer = new FileWriter(this.usercacheFile)) {
-            
+
             // Compile all the profiles into the custom gson format.
             final List<GameProfileGson> profiles = this.uuidCache.values().stream().map(GameProfileGson::new).collect(Collectors.toList());
             // Serialize the cache file and save it to the file.
             writer.write(this.gson.toJson(profiles));
         }
-        
+
         catch (final IOException e) {
-            
+
             ZenSupporters.LOG.catching(e);
         }
     }
-    
+
     /**
      * Attempts to get the filled properties for a profile. This includes things like texture
      * data.
@@ -182,7 +182,7 @@ public class ProfileManager {
      * @return The filled profile.
      */
     public GameProfile getFilledProfile (GameProfile profile) {
-        
+
         return this.sessionService.fillProfileProperties(profile, true);
     }
 }
