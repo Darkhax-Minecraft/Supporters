@@ -1,8 +1,10 @@
 package com.getconfluxed.supporters;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +17,7 @@ import com.getconfluxed.supporters.data.ProfileManager;
 import com.mojang.authlib.GameProfile;
 
 import net.darkhax.bookshelf.BookshelfRegistry;
+import net.darkhax.bookshelf.lib.Constants;
 import net.darkhax.bookshelf.util.SkullUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -35,6 +38,7 @@ public class Supporters {
     private Configs config;
     private Map<UUID, GameProfile> knownSupporters;
     private Map<UUID, ItemStack> skulls;
+    private List<UUID> allSupporters;
 
     @EventHandler
     public void onPreInit (FMLPreInitializationEvent event) {
@@ -46,6 +50,7 @@ public class Supporters {
 
         this.knownSupporters = new ConcurrentHashMap<>();
         this.skulls = new ConcurrentHashMap<>();
+        this.allSupporters = Collections.synchronizedList(new ArrayList<>());
         this.lookupManager = new ProfileManager(new File(this.modDir, "supporters-cache.json"));
         this.config = new Configs(new File(this.modDir, "supporters.cfg"));
         this.loadSupporters(false);
@@ -53,6 +58,11 @@ public class Supporters {
         BookshelfRegistry.addCommand(new CommandSupportersTree());
     }
 
+    public ProfileManager getLookupManager() {
+        
+        return this.lookupManager;
+    }
+    
     /**
      * Checks if an ID belongs to a supporter.
      *
@@ -84,6 +94,16 @@ public class Supporters {
         return Collections.unmodifiableCollection(this.knownSupporters.values());
     }
 
+    public GameProfile getSupporter(UUID id) {
+        
+        return this.knownSupporters.get(id);
+    }
+    
+    public UUID getRandomSupporter() {
+        
+        return this.allSupporters.isEmpty() ? null : this.allSupporters.get(Constants.RANDOM.nextInt(this.allSupporters.size()));
+    }
+    
     /**
      * Triggers a reload of all the supporter data. This will spin off multiple threads, so
      * calls to this command should be used sparingly.
@@ -93,6 +113,7 @@ public class Supporters {
         // Clear the list of known supporters.
         this.knownSupporters.clear();
         this.skulls.clear();
+        this.allSupporters.clear();
 
         // Start a new thread to update player info.
         new Thread( () -> {
@@ -113,6 +134,7 @@ public class Supporters {
 
                     this.knownSupporters.put(profile.getId(), profile);
                     this.skulls.put(profile.getId(), SkullUtils.createSkull(profile.getName()));
+                    this.allSupporters.add(profile.getId());
                 }
             }
 
