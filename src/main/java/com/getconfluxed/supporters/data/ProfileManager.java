@@ -63,7 +63,7 @@ public class ProfileManager {
      */
     public GameProfile getProfileByUUID (UUID id) {
 
-        return this.uuidCache.containsKey(id) ? this.uuidCache.get(id) : this.retrieveProfile(id);
+        return id == null ? null : this.uuidCache.containsKey(id) ? this.uuidCache.get(id) : this.retrieveProfile(id);
     }
 
     /**
