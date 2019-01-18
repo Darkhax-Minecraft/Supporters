@@ -38,7 +38,7 @@ public class GameProfileGson {
     public GameProfile constructProfile () {
 
         final GameProfile profile = new GameProfile(this.id, this.name);
-        profile.getProperties().put("textures", new Property(this.textureData, "texutres"));
+        profile.getProperties().put("textures", new Property("texutres", this.textureData));
         return profile;
     }
 }
