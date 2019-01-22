@@ -1,4 +1,4 @@
-package com.getconfluxed.supporters.data;
+package net.darkhax.supporters.data;
 
 import java.util.UUID;
 

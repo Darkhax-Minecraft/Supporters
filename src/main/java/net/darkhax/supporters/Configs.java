@@ -1,4 +1,4 @@
-package com.getconfluxed.supporters;
+package net.darkhax.supporters;
 
 import java.io.File;
 import java.io.IOException;

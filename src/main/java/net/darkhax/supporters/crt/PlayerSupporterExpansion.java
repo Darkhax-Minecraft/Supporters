@@ -1,10 +1,9 @@
-package com.getconfluxed.supporters.crt;
-
-import com.getconfluxed.supporters.Supporters;
+package net.darkhax.supporters.crt;
 
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import crafttweaker.api.player.IPlayer;
+import net.darkhax.supporters.Supporters;
 import net.minecraft.entity.player.EntityPlayer;
 import stanhebben.zenscript.annotations.ZenExpansion;
 import stanhebben.zenscript.annotations.ZenMethod;

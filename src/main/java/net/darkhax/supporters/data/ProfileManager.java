@@ -1,4 +1,4 @@
-package com.getconfluxed.supporters.data;
+package net.darkhax.supporters.data;
 
 import java.io.File;
 import java.io.FileReader;
@@ -11,12 +11,13 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.getconfluxed.supporters.Supporters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+
+import net.darkhax.supporters.Supporters;
 
 /**
  * This class serves as a combination of profile cache and client for looking up profiles from

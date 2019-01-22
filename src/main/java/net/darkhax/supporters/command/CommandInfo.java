@@ -1,11 +1,11 @@
-package com.getconfluxed.supporters.command;
+package net.darkhax.supporters.command;
 
 import java.util.StringJoiner;
 
-import com.getconfluxed.supporters.Supporters;
 import com.mojang.authlib.GameProfile;
 
 import net.darkhax.bookshelf.command.Command;
+import net.darkhax.supporters.Supporters;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;

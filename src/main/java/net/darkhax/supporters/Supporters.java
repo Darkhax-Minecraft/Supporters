@@ -1,4 +1,4 @@
-package com.getconfluxed.supporters;
+package net.darkhax.supporters;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,13 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.getconfluxed.supporters.command.CommandSupportersTree;
-import com.getconfluxed.supporters.data.ProfileManager;
 import com.mojang.authlib.GameProfile;
 
 import net.darkhax.bookshelf.BookshelfRegistry;
 import net.darkhax.bookshelf.lib.Constants;
 import net.darkhax.bookshelf.util.SkullUtils;
+import net.darkhax.supporters.command.CommandSupportersTree;
+import net.darkhax.supporters.data.ProfileManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -58,11 +58,16 @@ public class Supporters {
         BookshelfRegistry.addCommand(new CommandSupportersTree());
     }
 
-    public ProfileManager getLookupManager() {
-        
+    /**
+     * Provides access to the profile lookup manager.
+     *
+     * @return The internal lookup manager.
+     */
+    public ProfileManager getLookupManager () {
+
         return this.lookupManager;
     }
-    
+
     /**
      * Checks if an ID belongs to a supporter.
      *
@@ -94,16 +99,38 @@ public class Supporters {
         return Collections.unmodifiableCollection(this.knownSupporters.values());
     }
 
-    public GameProfile getSupporter(UUID id) {
-        
+    /**
+     * Gets a supporter by their UUID. If not supporter is found this will be null.
+     *
+     * @param id The unique ID of a player to lookup.
+     * @return The profile data associated with the passed id.
+     */
+    public GameProfile getSupporter (UUID id) {
+
         return this.knownSupporters.get(id);
     }
-    
-    public UUID getRandomSupporter() {
-        
+
+    /**
+     * Gets a supporter's skull by their UUID.
+     *
+     * @param id The unique ID of a player to lookup.
+     * @return The skull itemstack associated with the passed id.
+     */
+    public ItemStack getSupporterHead (UUID id) {
+
+        return this.skulls.get(id);
+    }
+
+    /**
+     * Gets the UUID of a random supporter.
+     *
+     * @return A random supporter's uuid.
+     */
+    public UUID getRandomSupporter () {
+
         return this.allSupporters.isEmpty() ? null : this.allSupporters.get(Constants.RANDOM.nextInt(this.allSupporters.size()));
     }
-    
+
     /**
      * Triggers a reload of all the supporter data. This will spin off multiple threads, so
      * calls to this command should be used sparingly.

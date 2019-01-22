@@ -1,8 +1,7 @@
-package com.getconfluxed.supporters.command;
-
-import com.getconfluxed.supporters.Supporters;
+package net.darkhax.supporters.command;
 
 import net.darkhax.bookshelf.command.Command;
+import net.darkhax.supporters.Supporters;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;

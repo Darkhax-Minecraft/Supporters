@@ -1,4 +1,4 @@
-package com.getconfluxed.supporters.command;
+package net.darkhax.supporters.command;
 
 import net.darkhax.bookshelf.command.CommandTree;
 import net.minecraft.command.ICommandSender;
